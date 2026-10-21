@@ -220,6 +220,8 @@
   };
 
   environment.systemPackages = with pkgs; [
+    # COSMIC selects this Qt 6 plugin; Plasma keeps its own integration.
+    cutecosmic
     virt-viewer
     dmg2img
     python3

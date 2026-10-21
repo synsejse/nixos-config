@@ -6,6 +6,14 @@
 
   nixpkgs.overlays = [
     (final: prev: {
+      # COSMIC's plugin scan must not overwrite NixOS's QT_PLUGIN_PATH.
+      cosmic-session = prev.cosmic-session.overrideAttrs (old: {
+        postInstall = (old.postInstall or "") + ''
+          substituteInPlace "$out/bin/start-cosmic" \
+            --replace-fail QT_PLUGIN_PATH cosmic_qt_plugin_dir
+        '';
+      });
+
       # Temporary workaround for master's cloud-hypervisor 54.0 cargoHash.
       # Stops applying once nixpkgs changes the affected version or hash.
       cloud-hypervisor = prev.cloud-hypervisor.overrideAttrs (
@@ -65,7 +73,7 @@
     })
   ];
 
-  # Let each desktop select its Qt integration; COSMIC defaults to global qt5ct.
+  # Let COSMIC select CuteCosmic and Plasma select KDE integration per session.
   qt.platformTheme = null;
 
   # KVM compatibility settings for nested virtualisation and macOS guests.
