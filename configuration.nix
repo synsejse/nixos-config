@@ -1,15 +1,22 @@
-{ pkgs, ... }:
+{ config, pkgs, ... }:
 
 {
   imports = [
     ./hardware-configuration.nix
+    ./saidler-vpn.nix
+    ./workarounds.nix
   ];
 
   nix = {
-    settings.experimental-features = [
-      "nix-command"
-      "flakes"
-    ];
+    settings = {
+      experimental-features = [
+        "nix-command"
+        "flakes"
+      ];
+      # Avoid concurrent memory-heavy package builds; keep all CPU threads per build.
+      max-jobs = 1;
+      cores = 12;
+    };
     gc = {
       automatic = true;
       dates = "weekly";
@@ -22,14 +29,22 @@
   };
   nixpkgs.config.allowUnfree = true;
 
-  boot = {
-    kernelPackages = pkgs.linuxPackages_latest;
+  chaotic.mesa-git = {
+    enable = true;
+    fallbackSpecialisation = false;
+  };
 
+  boot = {
+    kernelModules = [ "kvm-amd" ];
+    kernelPackages = pkgs.linuxPackages_cachyos;
+
+    lanzaboote = {
+      enable = true;
+      pkiBundle = "/var/lib/sbctl";
+      configurationLimit = 5;
+    };
     loader = {
-      systemd-boot = {
-        enable = true;
-        configurationLimit = 10;
-      };
+      systemd-boot.enable = false;
       efi.canTouchEfiVariables = true;
     };
   };
@@ -39,14 +54,10 @@
     networkmanager.enable = true;
     modemmanager.enable = false;
     firewall.trustedInterfaces = [ "synse-pc" ];
+    firewall.allowedTCPPorts = [ 5173 ];
   };
 
   time.timeZone = "Europe/Bratislava";
-
-#  fileSystems."/mnt/data" = {
-#    device = "/dev/disk/by-uuid/cdced3ab-fa71-4ea8-b867-f7bda8a78bf5";
-#    fsType = "ext4";
-#  };
 
   i18n = {
     defaultLocale = "en_US.UTF-8";
@@ -64,26 +75,56 @@
   };
 
   hardware = {
+    wooting.enable = true;
     amdgpu.overdrive.enable = true;
-    nvidia = {
-      open = true;
-    };
-    graphics = {
-      enable = true;
-      enable32Bit = true;
-    };
     opentabletdriver.enable = true;
   };
 
   security.rtkit.enable = true;
+
+  # Complete KWallet's PAM login in COSMIC as well as Plasma. COSMIC does not
+  # import PAM_KWALLET5_LOGIN into the systemd user manager itself.
+  systemd.user.services.plasma-kwallet-pam = {
+    overrideStrategy = "asDropin";
+    wantedBy = [ "graphical-session.target" ];
+    unitConfig.ConditionPathIsSocket = "%t/kwallet5.socket";
+    environment.PAM_KWALLET5_LOGIN = "%t/kwallet5.socket";
+  };
+  virtualisation.libvirtd = {
+    enable = true;
+    qemu = {
+      package = pkgs.qemu_kvm;
+      runAsRoot = false;
+      swtpm.enable = true;
+    };
+  };
   security.sudo.execWheelOnly = true;
 
   services = {
-    xserver.videoDrivers = [
-      "nvidia"
-      "amdgpu"
+    # Share the existing KDE wallet between Plasma and COSMIC.
+    gnome.gnome-keyring.enable = false;
+    dbus.packages = [
+      (pkgs.writeTextDir "share/dbus-1/services/org.freedesktop.secrets.service" ''
+        [D-BUS Service]
+        Name=org.freedesktop.secrets
+        Exec=${pkgs.kdePackages.kwallet}/bin/ksecretd
+      '')
     ];
+    cloudflare-warp.enable = true;
+    wivrn = {
+      enable = true;
+      openFirewall = true;
+      autoStart = false;
+      highPriority = true;
+      steam.package = config.programs.steam.package;
+      config = {
+        enable = true;
+        json.application = [ pkgs.wayvr "--openxr" ];
+      };
+    };
+    xserver.videoDrivers = [ "amdgpu" ];
     desktopManager.plasma6.enable = true;
+    desktopManager.cosmic.enable = true;
     displayManager.sddm.enable = true;
     flatpak.enable = true;
     lact.enable = true;
@@ -108,6 +149,10 @@
   };
 
   programs = {
+    fish.enable = true;
+    starship.enable = true;
+    virt-manager.enable = true;
+    kdeconnect.enable = true;
     appimage = {
       enable = true;
       binfmt = true;
@@ -126,33 +171,38 @@
     steam.enable = true;
   };
 
+  users.users.root.shell = pkgs.fish;
+
   users.users.synse = {
+    shell = pkgs.fish;
     isNormalUser = true;
     description = "synse";
     extraGroups = [
       "networkmanager"
       "wheel"
+      "kvm"
+      "libvirtd"
     ];
     packages = with pkgs; [
+      (callPackage ./chatgpt-linux.nix { })
       (discord.override {
         withOpenASAR = true;
         withVencord = true;
       })
       easyeffects
-      inkscape
+      ghostty
       google-chrome
       heroic
+      jetbrains-toolbox
       kdePackages.ksshaskpass
       mission-center
-      osu-lazer-bin
       prismlauncher
-      protonup-qt
       qbittorrent
       zed-editor
-      # archives
       arj
       kdePackages.ark
       kdePackages.plasma-vault
+      kdePackages.filelight
       lrzip
       p7zip
       rar
@@ -163,8 +213,23 @@
     ];
   };
 
+  # Keep COSMIC's existing portals, with KWallet handling sandboxed app secrets.
+  xdg.portal.config.cosmic = {
+    default = [ "cosmic" "gtk" ];
+    "org.freedesktop.impl.portal.Secret" = [ "kwallet" ];
+  };
+
   environment.systemPackages = with pkgs; [
+    virt-viewer
+    dmg2img
+    python3
+    swtpm
+    android-tools
+    scrcpy
     btop
+    sbctl
+    rocmPackages.rocminfo
+    rocm-smi
     fastfetch
     git
     nixd
@@ -172,7 +237,18 @@
     mpv
     mangohud
     gh
+    icu
   ];
+
+  # Bound temporary crash-dump processing as well as retained dump files.
+  systemd.coredump.settings.Coredump = {
+    Storage = "external";
+    Compress = true;
+    ProcessSizeMax = "256M";
+    ExternalSizeMax = "256M";
+    MaxUse = "1G";
+    KeepFree = "4G";
+  };
 
   zramSwap = {
     enable = true;

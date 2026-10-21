@@ -1,0 +1,22 @@
+--- a/src/vpnc.c
++++ b/src/vpnc.c
+@@ -2310,13 +2310,17 @@
+ 		for (ap = a; ap && seen_answer == 0; ap = ap->next)
+ 			if (ap->type == ISAKMP_XAUTH_06_ATTRIB_ANSWER
+ 				|| ap->type == ISAKMP_XAUTH_06_ATTRIB_NEXT_PIN
+-			    /* || ap->type == ISAKMP_XAUTH_06_ATTRIB_PASSCODE */)
++				|| (opt_vendor == VENDOR_FORTIGATE &&
++				    ap->type == ISAKMP_XAUTH_06_ATTRIB_PASSCODE))
+ 				seen_answer = 1;
+ 
+ 		for (ap = a; ap && reject == 0; ap = ap->next)
+ 			switch (ap->type) {
+ 			case ISAKMP_XAUTH_06_ATTRIB_TYPE:
+-				if (ap->af != isakmp_attr_16 || ap->u.attr_16 != 0)
++				/* FortiGate uses XAUTH_TYPE=2 for its OTP challenge. */
++				if (ap->af != isakmp_attr_16 ||
++				    (ap->u.attr_16 != 0 &&
++				     !(opt_vendor == VENDOR_FORTIGATE && ap->u.attr_16 == 2)))
+ 					reject = ISAKMP_N_ATTRIBUTES_NOT_SUPPORTED;
+ 				break;
+ 			case ISAKMP_XAUTH_06_ATTRIB_USER_NAME:

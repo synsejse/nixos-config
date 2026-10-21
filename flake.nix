@@ -2,12 +2,16 @@
   description = "NixOS host configuration";
 
   inputs = {
-    # Match the currently running NixOS generation; update deliberately later.
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    chaotic.url = "github:chaotic-cx/nyx/nyxpkgs-unstable";
+    lanzaboote = {
+      url = "github:nix-community/lanzaboote/v1.2.0";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
-    { nixpkgs, ... }:
+    { nixpkgs, lanzaboote, chaotic, ... }:
     let
       system = "x86_64-linux";
     in
@@ -18,6 +22,8 @@
         inherit system;
         modules = [
           ./configuration.nix
+          lanzaboote.nixosModules.lanzaboote
+          chaotic.nixosModules.default
         ];
       };
     };
