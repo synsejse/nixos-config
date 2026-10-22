@@ -11,7 +11,12 @@
   };
 
   outputs =
-    { nixpkgs, lanzaboote, chaotic, ... }:
+    {
+      nixpkgs,
+      lanzaboote,
+      chaotic,
+      ...
+    }:
     let
       system = "x86_64-linux";
     in
@@ -21,7 +26,7 @@
       nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
         inherit system;
         modules = [
-          ./configuration.nix
+          ./hosts/nixos
           lanzaboote.nixosModules.lanzaboote
           chaotic.nixosModules.default
         ];
