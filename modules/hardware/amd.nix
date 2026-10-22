@@ -12,6 +12,9 @@
 
   nixpkgs.overlays = [
     (final: prev: {
+      # btop only finds librocm_smi64 (AMD GPU stats) when built with ROCm support.
+      btop = prev.btop.override { rocmSupport = true; };
+
       # rocm-smi loads libdrm dynamically to resolve GPU names.
       rocm-smi = final.symlinkJoin {
         name = "rocm-smi";
