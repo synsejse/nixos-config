@@ -6,6 +6,8 @@
     (discord.override {
       withOpenASAR = true;
       withVencord = true;
+      # Chromium's VA-API AV1 decode crashes the GPU process on mesa-git.
+      commandLineArgs = "--disable-accelerated-video-decode";
     })
     ghostty
     google-chrome
