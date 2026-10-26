@@ -10,11 +10,11 @@
 
     ./hardware/amd.nix
     ./hardware/peripherals.nix
+    ./hardware/openrazer
 
     ./desktop/plasma.nix
     ./desktop/kwallet.nix
     ./desktop/audio.nix
-    ./desktop/labwc
 
     ./virtualisation.nix
     ./gaming.nix

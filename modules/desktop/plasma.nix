@@ -4,6 +4,7 @@
   services = {
     desktopManager.plasma6.enable = true;
     displayManager.sddm.enable = true;
+    displayManager.defaultSession = "plasma";
     gvfs.enable = true;
     switcherooControl.enable = true;
     flatpak.enable = true;

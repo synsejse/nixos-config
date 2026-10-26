@@ -1,6 +1,6 @@
 { pkgs, ... }:
 
-# Share the existing KDE wallet between Plasma and labwc.
+# Use KWallet for applications that access the Secret Service API.
 {
   services = {
     gnome.gnome-keyring.enable = false;
@@ -13,14 +13,11 @@
     ];
   };
 
-  # Complete KWallet's PAM login for labwc as well as Plasma, with an explicit
-  # socket path for sessions that do not import PAM_KWALLET5_LOGIN themselves.
+  # Complete KWallet's PAM login with an explicit socket path.
   systemd.user.services.plasma-kwallet-pam = {
     overrideStrategy = "asDropin";
     wantedBy = [ "graphical-session.target" ];
     unitConfig.ConditionPathIsSocket = "%t/kwallet5.socket";
     environment.PAM_KWALLET5_LOGIN = "%t/kwallet5.socket";
   };
-
-  xdg.portal.config.labwc."org.freedesktop.impl.portal.Secret" = [ "kwallet" ];
 }
