@@ -42,7 +42,10 @@
       pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
         (pythonFinal: pythonPrev: {
           openrazer-daemon = pythonPrev.openrazer-daemon.overridePythonAttrs (old: {
-            patches = (old.patches or [ ]) ++ [ ./deathadder-v3-pro-daemon.patch ];
+            patches = (old.patches or [ ]) ++ [
+              ./deathadder-v3-pro-daemon.patch
+              ./transport-handoff.patch
+            ];
           });
         })
       ];
