@@ -1,0 +1,15 @@
+# OpenRazer 3.12.4 daemon: reject invalid charging status instead of bool(nonzero).
+--- a/openrazer_daemon/dbus_services/dbus_methods/mamba.py
++++ b/openrazer_daemon/dbus_services/dbus_methods/mamba.py
+@@ -33,7 +33,10 @@
+     driver_path = self.get_driver_path('charge_status')
+
+     with open(driver_path, 'r') as driver_file:
+-        return bool(int(driver_file.read().strip()))
++        status = int(driver_file.read().strip())
++    if status not in (0, 1):
++        raise ValueError("Invalid charging status: {0}".format(status))
++    return status == 1
+
+
+ @endpoint('razer.device.power', 'setIdleTime', in_sig='q')

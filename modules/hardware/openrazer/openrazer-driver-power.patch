@@ -1,0 +1,51 @@
+# OpenRazer 3.12.4: reject failed/invalid power reports instead of displaying them.
+--- a/driver/razermouse_driver.c
++++ b/driver/razermouse_driver.c
+@@ -1477,6 +1477,7 @@
+     struct razer_mouse_device *device = dev_get_drvdata(dev);
+     struct razer_report request = {0};
+     struct razer_report response = {0};
++    int err;
+
+     request = razer_chroma_misc_get_battery_level();
+
+@@ -1560,7 +1561,13 @@
+         return -EINVAL;
+     }
+
+-    razer_send_payload(device, &request, &response);
++    err = razer_send_payload(device, &request, &response);
++    if (err)
++        return err;
++    if (response.status == RAZER_CMD_BUSY)
++        return -EAGAIN;
++    if (response.status != RAZER_CMD_SUCCESSFUL || response.data_size < 2)
++        return -EIO;
+
+     return sprintf(buf, "%d\n", response.arguments[1]);
+ }
+@@ -1575,6 +1582,7 @@
+     struct razer_mouse_device *device = dev_get_drvdata(dev);
+     struct razer_report request = {0};
+     struct razer_report response = {0};
++    int err;
+
+     request = razer_chroma_misc_get_charging_status();
+
+@@ -1662,7 +1670,15 @@
+         return -EINVAL;
+     }
+
+-    razer_send_payload(device, &request, &response);
++    err = razer_send_payload(device, &request, &response);
++    if (err)
++        return err;
++    if (response.status == RAZER_CMD_BUSY)
++        return -EAGAIN;
++    if (response.status != RAZER_CMD_SUCCESSFUL || response.data_size < 2)
++        return -EIO;
++    if (response.arguments[1] > 1)
++        return -EIO;
+
+     return sprintf(buf, "%d\n", response.arguments[1]);
+ }

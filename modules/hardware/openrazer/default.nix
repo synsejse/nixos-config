@@ -45,6 +45,7 @@
             patches = (old.patches or [ ]) ++ [
               ./deathadder-v3-pro-daemon.patch
               ./transport-handoff.patch
+              ./openrazer-daemon-power.patch
             ];
           });
         })
@@ -62,7 +63,10 @@
         inherit (pkgs) coreutils util-linux;
       }).overrideAttrs
         (old: {
-          patches = (old.patches or [ ]) ++ [ ./deathadder-v3-pro-driver.patch ];
+          patches = (old.patches or [ ]) ++ [
+            ./deathadder-v3-pro-driver.patch
+            ./openrazer-driver-power.patch
+          ];
         });
   };
 
