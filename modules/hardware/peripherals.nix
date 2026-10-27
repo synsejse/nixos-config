@@ -5,6 +5,9 @@
     opentabletdriver.enable = true;
   };
 
+  # iOS device access.
+  services.usbmuxd.enable = true;
+
   # Grant tablet-device access.
   services.udev.extraRules = ''
     KERNEL=="hidraw*", ATTRS{idVendor}=="056a", TAG+="uaccess"
