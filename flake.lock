@@ -21,6 +21,19 @@
         "type": "github"
       }
     },
+    "chromaven-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1793143791,
+        "narHash": "sha256-1lyzXa3kTcmpNyYZffw2qVgXscjJ5m/gcpin7ihYwGE=",
+        "path": "/home/synse/Documents/Coding/PersonalDev/Chromaven",
+        "type": "path"
+      },
+      "original": {
+        "path": "/home/synse/Documents/Coding/PersonalDev/Chromaven",
+        "type": "path"
+      }
+    },
     "crane": {
       "locked": {
         "lastModified": 1789760033,
@@ -74,11 +87,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1791940130,
-        "narHash": "sha256-hRCCi4fp5IjLz4cA8+RkUsaYAHzbd7M5FSAjKOq4E+k=",
+        "lastModified": 1793033486,
+        "narHash": "sha256-fXVURa0+CSCgaxLt8tmPNJq2U+fGYOwbk5j2YUe7kSc=",
         "owner": "nix-community",
         "repo": "home-manager",
-        "rev": "92a0ed1be12f1e20093faf8af63bae2c74ad521e",
+        "rev": "7db163b2aee7e410e396b48aed02f646d742b9b8",
         "type": "github"
       },
       "original": {
@@ -162,11 +175,26 @@
         "type": "github"
       }
     },
+    "raven-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1793143911,
+        "narHash": "sha256-TvW14R8Es9l6ypImw99zSTlder94gAlbLDLt5Z5ketw=",
+        "path": "/home/synse/Documents/Coding/PersonalDev/Raven",
+        "type": "path"
+      },
+      "original": {
+        "path": "/home/synse/Documents/Coding/PersonalDev/Raven",
+        "type": "path"
+      }
+    },
     "root": {
       "inputs": {
         "chaotic": "chaotic",
+        "chromaven-src": "chromaven-src",
         "lanzaboote": "lanzaboote",
-        "nixpkgs": "nixpkgs_2"
+        "nixpkgs": "nixpkgs_2",
+        "raven-src": "raven-src"
       }
     },
     "rust-overlay": {

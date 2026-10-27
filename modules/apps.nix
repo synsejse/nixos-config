@@ -3,6 +3,7 @@
 {
   users.users.synse.packages = with pkgs; [
     chatgpt-linux
+    chromaven
     (discord.override {
       withOpenASAR = true;
       withVencord = true;
@@ -26,4 +27,7 @@
   ];
 
   environment.systemPackages = [ pkgs.mpv ];
+
+  # Make the optional tray unit available without enabling login startup.
+  systemd.packages = [ pkgs.chromaven ];
 }

@@ -6,7 +6,7 @@
 }:
 
 {
-  # Keep Polychromatic and its Python client on the same patched daemon.
+  # Keep polling support and daemon fixes in the Python package set.
   nixpkgs.overlays = [
     (final: prev: {
       # CachyOS's cached kernel uses the older module-certificate layout.
@@ -69,6 +69,4 @@
           ];
         });
   };
-
-  environment.systemPackages = [ pkgs.polychromatic ];
 }
