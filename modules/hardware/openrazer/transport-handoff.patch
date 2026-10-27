@@ -1,6 +1,6 @@
 # Local OpenRazer 3.12.4 fix: hand off a shared mouse serial between USB transports.
 diff --git a/openrazer_daemon/daemon.py b/openrazer_daemon/daemon.py
-index fbce9df..18d3508 100644
+index fbce9df..e33a054 100644
 --- a/openrazer_daemon/daemon.py
 +++ b/openrazer_daemon/daemon.py
 @@ -27,6 +27,7 @@ import threading
@@ -59,7 +59,7 @@ index fbce9df..18d3508 100644
 
                      # Wireless devices sometimes don't listen
                      count = 0
-@@ -512,9 +517,49 @@ class RazerDaemon(DBusService):
+@@ -512,9 +517,53 @@ class RazerDaemon(DBusService):
                          continue
 
                      self._razer_devices.add(sys_name, device_serial, razer_device)
@@ -81,7 +81,11 @@ index fbce9df..18d3508 100644
 +                         previous.device_id, candidate._device_path)
 +        # Save cached settings before retiring the now-inactive receiver. Its
 +        # hardware DPI read may return zero or fail once the cable is connected.
-+        self.write_persistence(self._persistence_file)
++        # A disk write failure must not prevent releasing the shared D-Bus path.
++        try:
++            self.write_persistence(self._persistence_file)
++        except OSError:
++            self.logger.exception('Failed to persist settings before switching %s', candidate.serial)
 +        try:
 +            previous.dbus.close(read_dpi=False)
 +        except Exception:
@@ -109,7 +113,7 @@ index fbce9df..18d3508 100644
      def _add_device(self, device):
          """
          Add device event from udev
-@@ -531,11 +576,10 @@ class RazerDaemon(DBusService):
+@@ -531,11 +580,10 @@ class RazerDaemon(DBusService):
                  continue
 
              if device_class.match(sys_name, sys_path):  # Check it matches sys/ ID format and has device_type file
@@ -124,7 +128,7 @@ index fbce9df..18d3508 100644
 
                  # Its a udev event so currently the device hasn't been chmodded yet
                  time.sleep(0.2)
-@@ -566,18 +610,21 @@ class RazerDaemon(DBusService):
+@@ -566,18 +614,21 @@ class RazerDaemon(DBusService):
          :type device: pyudev.device._device.Device
          """
          device_id = device.sys_name
@@ -154,7 +158,7 @@ index fbce9df..18d3508 100644
 
          except IndexError:  # Why didn't i set it up as KeyError
              # It will return "extra" events for the additional usb interfaces bound to the driver
-@@ -591,25 +638,53 @@ class RazerDaemon(DBusService):
+@@ -591,25 +642,53 @@ class RazerDaemon(DBusService):
          :type device: pyudev.device._device.Device
          """
          self.logger.debug('Device event [%s]: %s', device.action, device.device_path)
