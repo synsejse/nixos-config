@@ -11,10 +11,8 @@
     })
     ghostty
     google-chrome
-    jetbrains-toolbox
     mission-center
     qbittorrent
-    zed-editor
 
     # Archive tools
     arj

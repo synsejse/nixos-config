@@ -19,6 +19,7 @@
     ./virtualisation.nix
     ./gaming.nix
     ./apps.nix
+    ./coding
     ./saidler-vpn
   ];
 }
