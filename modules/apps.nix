@@ -35,6 +35,8 @@
   # https://github.com/ghostty-org/ghostty/discussions/14394
   systemd.user.services."app-com.mitchellh.ghostty" = {
     overrideStrategy = "asDropin";
+    # Inherit the desktop PATH instead of NixOS's minimal service PATH.
+    enableDefaultPath = false;
     serviceConfig.Type = "notify";
   };
 }
