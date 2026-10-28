@@ -44,9 +44,13 @@
     appimage = {
       enable = true;
       binfmt = true;
-      # osu! and other .NET AppImages need ICU inside the FHS environment.
       package = pkgs.appimage-run.override {
-        extraPkgs = pkgs: [ pkgs.icu ];
+        extraPkgs = pkgs: [
+          # osu! and other .NET AppImages need ICU.
+          pkgs.icu
+          # LiMusic bundles libgcrypt but expects this dependency from the host.
+          pkgs.libgpg-error
+        ];
       };
     };
   };
