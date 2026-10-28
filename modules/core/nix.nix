@@ -5,9 +5,6 @@
         "nix-command"
         "flakes"
       ];
-      # Avoid concurrent memory-heavy package builds; give each build every CPU thread.
-      max-jobs = 1;
-      cores = 0;
     };
     gc = {
       automatic = true;
