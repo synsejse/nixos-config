@@ -30,4 +30,11 @@
 
   # Make the optional tray unit available without enabling login startup.
   systemd.packages = [ pkgs.chromaven ];
+
+  # Ghostty 1.3.1 installs SIGUSR2 too late for systemd 262's startup check.
+  # https://github.com/ghostty-org/ghostty/discussions/14394
+  systemd.user.services."app-com.mitchellh.ghostty" = {
+    overrideStrategy = "asDropin";
+    serviceConfig.Type = "notify";
+  };
 }
