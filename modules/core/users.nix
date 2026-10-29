@@ -6,6 +6,7 @@
   users.users.synse = {
     shell = pkgs.fish;
     isNormalUser = true;
+    autoSubUidGidRange = true;
     description = "synse";
     extraGroups = [ "wheel" ];
   };

@@ -14,6 +14,7 @@
     google-chrome
     mission-center
     qbittorrent
+    t3code
 
     # Archive tools
     arj
