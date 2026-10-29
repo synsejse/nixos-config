@@ -21,19 +21,6 @@
         "type": "github"
       }
     },
-    "chromaven-src": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1793144033,
-        "narHash": "sha256-1lyzXa3kTcmpNyYZffw2qVgXscjJ5m/gcpin7ihYwGE=",
-        "path": "/home/synse/Documents/Coding/PersonalDev/Chromaven",
-        "type": "path"
-      },
-      "original": {
-        "path": "/home/synse/Documents/Coding/PersonalDev/Chromaven",
-        "type": "path"
-      }
-    },
     "crane": {
       "locked": {
         "lastModified": 1789760033,
@@ -175,26 +162,11 @@
         "type": "github"
       }
     },
-    "raven-src": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1793179430,
-        "narHash": "sha256-TvW14R8Es9l6ypImw99zSTlder94gAlbLDLt5Z5ketw=",
-        "path": "/home/synse/Documents/Coding/PersonalDev/Raven",
-        "type": "path"
-      },
-      "original": {
-        "path": "/home/synse/Documents/Coding/PersonalDev/Raven",
-        "type": "path"
-      }
-    },
     "root": {
       "inputs": {
         "chaotic": "chaotic",
-        "chromaven-src": "chromaven-src",
         "lanzaboote": "lanzaboote",
-        "nixpkgs": "nixpkgs_2",
-        "raven-src": "raven-src"
+        "nixpkgs": "nixpkgs_2"
       }
     },
     "rust-overlay": {

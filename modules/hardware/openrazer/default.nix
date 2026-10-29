@@ -66,6 +66,7 @@
           patches = (old.patches or [ ]) ++ [
             ./deathadder-v3-pro-driver.patch
             ./openrazer-driver-power.patch
+            ./openrazer-driver-dpi.patch
           ];
         });
   };
