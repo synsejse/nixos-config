@@ -18,6 +18,11 @@
     };
   };
 
+  virtualisation.podman = {
+    enable = true;
+    defaultNetwork.settings.dns_enabled = true;
+  };
+
   programs.virt-manager.enable = true;
 
   environment.systemPackages = [ pkgs.virt-viewer ];
