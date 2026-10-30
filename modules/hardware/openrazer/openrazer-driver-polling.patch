@@ -1,0 +1,245 @@
+# OpenRazer 3.12.4: route both 00c3 polling writes through 0x1f.
+# Hardware capture confirms 0xff times out for mode 1; 0x1f acknowledges both.
+# Validate input/acks, serialize the pair, and propagate failures without replay.
+# Extended polling read replies declare size 1 while storing the rate in arg[1].
+# Apply after openrazer-driver-transport.patch.
+--- a/driver/razermouse_driver.c
++++ b/driver/razermouse_driver.c
+@@ -124,8 +124,11 @@
+ {
+     if (device->usb_pid != USB_DEVICE_ID_RAZER_DEATHADDER_V3_PRO_WIRELESS_ALT)
+         return false;
+
++    if (request->command_class == 0x00)
++        return request->command_id.id == 0xc0;
++
+     if (request->command_class == 0x04)
+         return request->command_id.id == 0x85 || request->command_id.id == 0x86;
+
+     if (request->command_class == 0x07)
+@@ -137,9 +140,9 @@
+
+ /**
+  * Send a command and validate its response while holding the device lock.
+  */
+-static int razer_send_payload(struct razer_mouse_device *device, struct razer_report *request, struct razer_report *response)
++static int razer_send_payload_locked(struct razer_mouse_device *device, struct razer_report *request, struct razer_report *response)
+ {
+     bool retry_read = razer_retryable_receiver_read(device, request);
+     unsigned int max_attempts = retry_read ? 3 : 1;
+     unsigned int attempt;
+@@ -147,10 +150,9 @@
+     int err = 0;
+
+     request->crc = razer_calculate_crc(request);
+
+-    /* Keep other sysfs requests out of the complete recovery sequence. */
+-    mutex_lock(&device->lock);
++    lockdep_assert_held(&device->lock);
+     for (attempt = 0; attempt < max_attempts; attempt++) {
+         err = razer_get_report(device->usb_dev, request, response);
+         if (err) {
+             error_message = "USB transfer failed";
+@@ -205,15 +207,25 @@
+         if (attempt + 1 == max_attempts)
+             break;
+         usleep_range(20000, 21000);
+     }
+-    mutex_unlock(&device->lock);
+
+     if (err) {
+         printk(KERN_WARNING "razermouse: Request %02x:%02x failed after %u attempt(s)\n",
+                request->command_class, request->command_id.id, attempt + 1);
+         print_erroneous_report(response, "razermouse", error_message);
+     }
++    return err;
++}
++
++static int razer_send_payload(struct razer_mouse_device *device, struct razer_report *request, struct razer_report *response)
++{
++    int err;
++
++    /* Keep other sysfs requests out of the complete recovery sequence. */
++    mutex_lock(&device->lock);
++    err = razer_send_payload_locked(device, request, response);
++    mutex_unlock(&device->lock);
+     return err;
+ }
+
+ /*
+@@ -1842,8 +1854,9 @@
+     struct razer_mouse_device *device = dev_get_drvdata(dev);
+     struct razer_report request = {0};
+     struct razer_report response = {0};
+     unsigned short polling_rate = 0;
++    int err;
+
+     switch(device->usb_pid) {
+     case USB_DEVICE_ID_RAZER_DEATHADDER_3_5G:
+     case USB_DEVICE_ID_RAZER_DEATHADDER_3_5G_BLACK:
+@@ -1937,10 +1950,17 @@
+     case USB_DEVICE_ID_RAZER_DEATHADDER_V4_PRO_WIRELESS:
+         request = razer_chroma_misc_get_polling_rate2();
+         request.transaction_id.id = 0x1f;
+
+-        razer_send_payload(device, &request, &response);
+-
++        err = razer_send_payload(device, &request, &response);
++        if (err)
++            return err;
++        if (response.status == RAZER_CMD_BUSY)
++            return -EAGAIN;
++        if (response.status != RAZER_CMD_SUCCESSFUL || response.data_size < 1)
++            return -EIO;
++
++        /* Extended polling replies echo size 1 but store the rate in arg[1]. */
+         switch(response.arguments[1]) {
+         case 0x01:
+             polling_rate = 8000;
+             break;
+@@ -1955,11 +1975,16 @@
+             break;
+         case  0x10:
+             polling_rate = 500;
+             break;
+-        case  0x40:
++        case 0x20:
++            polling_rate = 250;
++            break;
++        case 0x40:
+             polling_rate = 125;
+             break;
++        default:
++            return -EIO;
+         }
+
+         return sprintf(buf, "%d\n", polling_rate);
+
+@@ -2036,8 +2061,48 @@
+
+     return sprintf(buf, "%d\n", polling_rate);
+ }
+
++/*
++ * DeathAdder V3 Pro 00c3 routes both extended polling writes through 0x1f.
++ * 0xff times out on the second write. Serialize the pair and verify each ack;
++ * a failed second command can leave a partially applied setting, so report the
++ * error and never automatically replay or undo either write.
++ */
++static int razer_set_receiver_poll_rate(struct razer_mouse_device *device, unsigned short polling_rate)
++{
++    struct razer_report request;
++    struct razer_report response;
++    unsigned int mode;
++    int err = 0;
++
++    mutex_lock(&device->lock);
++    for (mode = 0; mode < 2; mode++) {
++        request = razer_chroma_misc_set_polling_rate2(polling_rate, mode);
++        request.transaction_id.id = 0x1f;
++        err = razer_send_payload_locked(device, &request, &response);
++        if (err)
++            break;
++        if (response.status != RAZER_CMD_SUCCESSFUL) {
++            err = response.status == RAZER_CMD_BUSY ? -EAGAIN : -EIO;
++            break;
++        }
++        if (response.transaction_id.id != request.transaction_id.id ||
++            response.protocol_type != request.protocol_type ||
++            response.data_size < 2 || response.arguments[0] != mode ||
++            response.arguments[1] != request.arguments[1]) {
++            err = -EIO;
++            break;
++        }
++        if (response.crc != razer_calculate_crc(&response)) {
++            err = -EBADMSG;
++            break;
++        }
++    }
++    mutex_unlock(&device->lock);
++    return err;
++}
++
+ /**
+  * Write device file "poll_rate"
+  *
+  * Sets the poll rate
+@@ -2047,8 +2112,30 @@
+     struct razer_mouse_device *device = dev_get_drvdata(dev);
+     unsigned short polling_rate = (unsigned short)simple_strtoul(buf, NULL, 10);
+     struct razer_report request = {0};
+     struct razer_report response = {0};
++    int err;
++
++    if (device->usb_pid == USB_DEVICE_ID_RAZER_DEATHADDER_V3_PRO_WIRELESS_ALT) {
++        err = kstrtou16(buf, 10, &polling_rate);
++        if (err)
++            return err;
++        switch (polling_rate) {
++        case 125:
++        case 500:
++        case 1000:
++        case 2000:
++        case 4000:
++        case 8000:
++            break;
++        default:
++            return -EINVAL;
++        }
++        err = razer_set_receiver_poll_rate(device, polling_rate);
++        if (err)
++            return err;
++        return count;
++    }
+
+     switch(device->usb_pid) {
+     case USB_DEVICE_ID_RAZER_DEATHADDER_3_5G:
+     case USB_DEVICE_ID_RAZER_DEATHADDER_3_5G_BLACK:
+@@ -2133,9 +2220,8 @@
+     case USB_DEVICE_ID_RAZER_VIPER_8K:
+     case USB_DEVICE_ID_RAZER_VIPER_MINI_SE_WIRED:
+     case USB_DEVICE_ID_RAZER_VIPER_MINI_SE_WIRELESS:
+     case USB_DEVICE_ID_RAZER_HYPERPOLLING_WIRELESS_DONGLE:
+-    case USB_DEVICE_ID_RAZER_DEATHADDER_V3_PRO_WIRELESS_ALT:
+     case USB_DEVICE_ID_RAZER_DEATHADDER_V3:
+     case USB_DEVICE_ID_RAZER_VIPER_V3_PRO_WIRELESS:
+     case USB_DEVICE_ID_RAZER_DEATHADDER_V4_PRO_WIRED:
+     case USB_DEVICE_ID_RAZER_DEATHADDER_V4_PRO_WIRELESS:
+@@ -2189,18 +2275,21 @@
+         printk(KERN_WARNING "razermouse: poll_rate not supported for this model\n");
+         return -EINVAL;
+     }
+
+-    razer_send_payload(device, &request, &response);
++    err = razer_send_payload(device, &request, &response);
++    if (err)
++        return err;
+
+     // For certain devices, Razer sends each request once with 0x00 and once with 0x01
+     switch(device->usb_pid) {
+     case USB_DEVICE_ID_RAZER_VIPER_8K:
+     case USB_DEVICE_ID_RAZER_HYPERPOLLING_WIRELESS_DONGLE:
+-    case USB_DEVICE_ID_RAZER_DEATHADDER_V3_PRO_WIRELESS_ALT:
+         request = razer_chroma_misc_set_polling_rate2(polling_rate, 0x01);
+         request.transaction_id.id = 0xFF;
+-        razer_send_payload(device, &request, &response);
++        err = razer_send_payload(device, &request, &response);
++        if (err)
++            return err;
+         break;
+     case USB_DEVICE_ID_RAZER_VIPER_MINI_SE_WIRED:
+     case USB_DEVICE_ID_RAZER_VIPER_MINI_SE_WIRELESS:
+     case USB_DEVICE_ID_RAZER_DEATHADDER_V3:
+@@ -2208,9 +2297,11 @@
+     case USB_DEVICE_ID_RAZER_DEATHADDER_V4_PRO_WIRED:
+     case USB_DEVICE_ID_RAZER_DEATHADDER_V4_PRO_WIRELESS:
+         request = razer_chroma_misc_set_polling_rate2(polling_rate, 0x01);
+         request.transaction_id.id = 0x1F;
+-        razer_send_payload(device, &request, &response);
++        err = razer_send_payload(device, &request, &response);
++        if (err)
++            return err;
+         break;
+     }
+
+     return count;

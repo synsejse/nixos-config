@@ -46,6 +46,7 @@
               ./deathadder-v3-pro-daemon.patch
               ./transport-handoff.patch
               ./openrazer-daemon-power.patch
+              ./openrazer-daemon-polling.patch
             ];
           });
         })
@@ -67,6 +68,8 @@
             ./deathadder-v3-pro-driver.patch
             ./openrazer-driver-power.patch
             ./openrazer-driver-dpi.patch
+            ./openrazer-driver-transport.patch
+            ./openrazer-driver-polling.patch
           ];
         });
   };

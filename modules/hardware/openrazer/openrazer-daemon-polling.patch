@@ -1,0 +1,19 @@
+# OpenRazer 3.12.4: do not cache a rejected polling-rate write.
+--- a/openrazer_daemon/dbus_services/dbus_methods/mamba.py
++++ b/openrazer_daemon/dbus_services/dbus_methods/mamba.py
+@@ -316,11 +316,11 @@
+
+     driver_path = self.get_driver_path('poll_rate')
+
+-    # remember poll rate
++    with open(driver_path, 'w') as driver_file:
++        driver_file.write(str(rate))
++
++    # Cache only an accepted write, including errors raised while closing sysfs.
+     self.poll_rate = rate
+-
+-    with open(driver_path, 'w') as driver_file:
+-        driver_file.write(str(rate))
+
+
+ @endpoint('razer.device.misc', 'getPollRate', out_sig='i')
