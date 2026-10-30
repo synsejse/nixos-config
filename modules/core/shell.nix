@@ -25,7 +25,6 @@
     fastfetch
     git
     gh
-    android-tools
     scrcpy
     dmg2img
   ];

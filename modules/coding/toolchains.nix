@@ -1,6 +1,8 @@
 { pkgs, ... }:
 
 {
+  nixpkgs.config.android_sdk.accept_license = true;
+
   programs.java = {
     enable = true;
     package = pkgs.jdk21;
@@ -8,11 +10,17 @@
 
   # Also expose these to IDEs launched from the desktop.
   environment.variables = {
+    ANDROID_HOME = "${pkgs.android-device-sdk}/libexec/android-sdk";
+    ANDROID_SDK_ROOT = "${pkgs.android-device-sdk}/libexec/android-sdk";
     JAVA_HOME = "${pkgs.jdk21}/lib/openjdk";
     RUST_SRC_PATH = "${pkgs.rustPlatform.rustLibSrc}";
   };
 
   environment.systemPackages = with pkgs; [
+    # T3 device support (SDK includes adb, emulator, and command-line tools).
+    android-device-sdk
+    nodejs_24
+
     # Common build tools
     gnumake
     cmake
