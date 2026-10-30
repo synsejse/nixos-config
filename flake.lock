@@ -162,11 +162,28 @@
         "type": "github"
       }
     },
+    "razerr-rs": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1793384237,
+        "narHash": "sha256-T1lVgIWUSJoRUE08HGX8I1aHzjQeqUAFHQ52guDpuZg=",
+        "owner": "synsejse",
+        "repo": "razerr-rs",
+        "rev": "bcde32642d4d9af1319fe0b3a7d232d81c2fc7ed",
+        "type": "github"
+      },
+      "original": {
+        "owner": "synsejse",
+        "repo": "razerr-rs",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "chaotic": "chaotic",
         "lanzaboote": "lanzaboote",
-        "nixpkgs": "nixpkgs_2"
+        "nixpkgs": "nixpkgs_2",
+        "razerr-rs": "razerr-rs"
       }
     },
     "rust-overlay": {
