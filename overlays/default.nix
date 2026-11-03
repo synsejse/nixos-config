@@ -4,10 +4,15 @@
 {
   nixpkgs.overlays = [
     (final: prev: {
-      android-device-sdk = final.callPackage ../pkgs/android-device-sdk.nix { };
-      chatgpt-linux = final.callPackage ../pkgs/chatgpt-linux.nix { };
-      t3code = final.callPackage ../pkgs/t3code.nix { };
-      razerr-rs = final.callPackage ../pkgs/razerr-rs.nix {
+      discord-context-translate = final.callPackage ../pkgs/discord-context-translate { };
+      mocktail-vr = final.callPackage ../pkgs/mocktail-vr { };
+      android-device-sdk = final.callPackage ../pkgs/android-device-sdk { };
+      chatgpt-linux = final.callPackage ../pkgs/chatgpt-linux { };
+      t3code = final.callPackage ../pkgs/t3code { };
+      linuxblaster-control = final.callPackage ../pkgs/linuxblaster-control {
+        linuxblasterSource = inputs.linuxblaster-control;
+      };
+      razerr-rs = final.callPackage ../pkgs/razerr-rs {
         razerrSource = inputs.razerr-rs;
       };
     })

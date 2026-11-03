@@ -8,6 +8,11 @@
       url = "github:synsejse/razerr-rs";
       flake = false;
     };
+    linuxblaster-control = {
+      # Keep the installed checkout's revision; upstream already has newer work.
+      url = "github:synsejse/linuxblaster_control/765b5ec8ebf76d4250168af7225e6a1249e95191";
+      flake = false;
+    };
     lanzaboote = {
       url = "github:nix-community/lanzaboote/v1.2.0";
       inputs.nixpkgs.follows = "nixpkgs";
