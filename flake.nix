@@ -9,8 +9,8 @@
       flake = false;
     };
     linuxblaster-control = {
-      # Keep the installed checkout's revision; upstream already has newer work.
-      url = "github:synsejse/linuxblaster_control/765b5ec8ebf76d4250168af7225e6a1249e95191";
+      # The fork's device support is developed on x4-support, not main.
+      url = "github:synsejse/linuxblaster_control/x4-support";
       flake = false;
     };
     lanzaboote = {

@@ -55,8 +55,8 @@ let
   src = fetchFromGitHub {
     owner = "komaruworld";
     repo = "mocktail";
-    rev = "9a1ccbb5cebea7bb578bfb198d2a3246734e6a40";
-    hash = "sha256-6axH2Ec4jfgoClUnAdmDDAYpAXrdaPdeeIg9ZcFiQbM=";
+    rev = "f40af08ed6b874f20a7ff3ded604d3270573c88a";
+    hash = "sha256-9lWOJxlQvkiHMJG+cBOyz5Bj1+Li8fMSKztzC8PTvpw=";
   };
   openxrSrc = fetchFromGitHub {
     owner = "KhronosGroup";
@@ -64,7 +64,7 @@ let
     rev = "f2448a8797c85814aa892efc1ab8707900fbcc78";
     hash = "sha256-glcHMArDabXbrxO4CY2QeTJFTeUTQH4v1O03LuhML7E=";
   };
-  version = "1.0.3-vr";
+  version = "1.0.3-vr-f40af08";
 in
 stdenv.mkDerivation (finalAttrs: {
   pname = "mocktail-vr";

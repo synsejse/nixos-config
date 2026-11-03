@@ -123,8 +123,8 @@
       },
       "original": {
         "owner": "synsejse",
+        "ref": "x4-support",
         "repo": "linuxblaster_control",
-        "rev": "765b5ec8ebf76d4250168af7225e6a1249e95191",
         "type": "github"
       }
     },
