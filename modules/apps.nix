@@ -4,7 +4,7 @@
   users.users.synse.packages = with pkgs; [
     linuxblaster-control
     razerr-rs
-    discord-context-translate
+    discord-vencord
     mocktail
     mocktail-vr
     ghostty
@@ -25,9 +25,6 @@
   ];
 
   environment.systemPackages = [ pkgs.mpv ];
-
-  # ContextTranslate uses its hosted backend; no local model server is needed.
-  services.ollama.enable = false;
 
   # Make the monitor available for D-Bus activation without enabling login startup.
   systemd.packages = [ pkgs.razerr-rs ];

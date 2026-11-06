@@ -4,9 +4,8 @@ Each package has its own directory, with `default.nix` and any patches, launcher
 desktop entries, or bundled sources beside it. `../overlays/default.nix` exposes
 the packages; `../modules/apps.nix` selects desktop applications for this host.
 
-- `discord-context-translate`: Discord with OpenASAR, Vencord, and the bundled
-  ContextTranslate plugin bundle. Its video-decoding flag is part of the package.
-  The plugin does not install or start an Ollama service.
+- `discord-vencord`: Discord with OpenASAR and Vencord. OpenASAR is patched for
+  read-only Nix modules, and the video-decoding flag is part of the package.
 - `mocktail`: upstream's package from the pinned release tag, wrapped so the
   runtime and its helpers find their graphics libraries and each other.
 - `mocktail-vr`: pinned upstream VR source, pinned vendored dependencies, the
