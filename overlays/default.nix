@@ -10,14 +10,9 @@
       };
       mocktail-vr = final.callPackage ../pkgs/mocktail-vr { };
       android-device-sdk = final.callPackage ../pkgs/android-device-sdk { };
-      chatgpt-linux = final.callPackage ../pkgs/chatgpt-linux { };
       t3code = final.callPackage ../pkgs/t3code { };
-      linuxblaster-control = final.callPackage ../pkgs/linuxblaster-control {
-        linuxblasterSource = inputs.linuxblaster-control;
-      };
-      razerr-rs = final.callPackage ../pkgs/razerr-rs {
-        razerrSource = inputs.razerr-rs;
-      };
+      linuxblaster-control = final.callPackage "${inputs.linuxblaster-control}/nix/package.nix" { };
+      razerr-rs = final.callPackage "${inputs.razerr-rs}/nix/package.nix" { };
     })
   ];
 }

@@ -2,7 +2,6 @@
 
 {
   users.users.synse.packages = with pkgs; [
-    chatgpt-linux
     linuxblaster-control
     razerr-rs
     discord-context-translate
@@ -37,12 +36,9 @@
   # Sound Blaster X4 control port for the desktop session; ModemManager ignores it.
   services.udev.packages = [ pkgs.linuxblaster-control ];
 
-  # Ghostty 1.3.1 installs SIGUSR2 too late for systemd 262's startup check.
-  # https://github.com/ghostty-org/ghostty/discussions/14394
   systemd.user.services."app-com.mitchellh.ghostty" = {
     overrideStrategy = "asDropin";
     # Inherit the desktop PATH instead of NixOS's minimal service PATH.
     enableDefaultPath = false;
-    serviceConfig.Type = "notify";
   };
 }
