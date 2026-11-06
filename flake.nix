@@ -5,12 +5,11 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     chaotic.url = "github:chaotic-cx/nyx/nyxpkgs-unstable";
     razerr-rs = {
-      url = "github:synsejse/razerr-rs";
+      url = "github:synsejse/razerr-rs/main";
       flake = false;
     };
     linuxblaster-control = {
-      # The fork's device support is developed on x4-support, not main.
-      url = "github:synsejse/linuxblaster_control/x4-support";
+      url = "github:synsejse/linuxblaster_control/main";
       flake = false;
     };
     lanzaboote = {

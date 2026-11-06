@@ -114,16 +114,16 @@
     "linuxblaster-control": {
       "flake": false,
       "locked": {
-        "lastModified": 1793383193,
-        "narHash": "sha256-pkjnoA8IGyWnF7uuzPoD4wkVDR1nLPjF/itkiNMo/PE=",
+        "lastModified": 1793819773,
+        "narHash": "sha256-8RdzxuhM+QKY5PHx8/dQA5HYC8YuAXDERlw30NCCtCI=",
         "owner": "synsejse",
         "repo": "linuxblaster_control",
-        "rev": "765b5ec8ebf76d4250168af7225e6a1249e95191",
+        "rev": "0ab808e8f267de820565dfafae309014ebaf129d",
         "type": "github"
       },
       "original": {
         "owner": "synsejse",
-        "ref": "x4-support",
+        "ref": "main",
         "repo": "linuxblaster_control",
         "type": "github"
       }
@@ -182,15 +182,16 @@
     "razerr-rs": {
       "flake": false,
       "locked": {
-        "lastModified": 1793384237,
-        "narHash": "sha256-T1lVgIWUSJoRUE08HGX8I1aHzjQeqUAFHQ52guDpuZg=",
+        "lastModified": 1793817570,
+        "narHash": "sha256-neK/nT+sxQTEx/gqbcA6qeAsTZjVMl9twDpfqpuPEsw=",
         "owner": "synsejse",
         "repo": "razerr-rs",
-        "rev": "bcde32642d4d9af1319fe0b3a7d232d81c2fc7ed",
+        "rev": "f7f83bee25b981ac9a5246d0eefa0abae838629f",
         "type": "github"
       },
       "original": {
         "owner": "synsejse",
+        "ref": "main",
         "repo": "razerr-rs",
         "type": "github"
       }

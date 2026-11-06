@@ -20,7 +20,10 @@ rustPlatform.buildRustPackage {
   pname = "razerr-rs";
   version = "0.1.0";
   src = lib.cleanSource razerrSource;
-  cargoLock.lockFile = "${razerrSource}/Cargo.lock";
+  cargoLock = {
+    lockFile = "${razerrSource}/Cargo.lock";
+    outputHashes = import "${razerrSource}/packaging/cargo-git-hashes.nix";
+  };
 
   nativeBuildInputs = [
     pkg-config
@@ -41,6 +44,8 @@ rustPlatform.buildRustPackage {
       $out/lib/systemd/user/razerr-rs.service \
       --replace-fail '@PREFIX@' "$out"
     desktop-file-validate $out/share/applications/org.razerr_rs.App.desktop
+    install -Dm644 packaging/licenses/inter/LICENSE.txt $out/share/licenses/razerr-rs/inter/LICENSE.txt
+    install -Dm644 packaging/licenses/lucide/LICENSE $out/share/licenses/razerr-rs/lucide/LICENSE
   '';
 
   postFixup = ''

@@ -39,11 +39,11 @@
 
 stdenv.mkDerivation rec {
   pname = "t3code";
-  version = "0.1.7-nightly.20261103.4119";
+  version = "0.1.8-nightly.20261104.4165";
 
   src = fetchurl {
     url = "https://github.com/pingdotgg/t3code/releases/download/v${version}/T3-Code-${version}-amd64.deb";
-    hash = "sha256-582O+sWZoUGz6JzLvKTPwv1XH2nwqqFJB9kDXLB2zn0=";
+    hash = "sha256-cfc5YOeO+iPQkzQxDniO1+l1qPV7gU1Ny7pyM9JJu44=";
   };
 
   nativeBuildInputs = [

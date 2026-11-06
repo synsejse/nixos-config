@@ -32,7 +32,10 @@ rustPlatform.buildRustPackage {
   pname = "linuxblaster-control";
   version = "0.1.0";
   src = lib.cleanSource linuxblasterSource;
-  cargoLock.lockFile = "${linuxblasterSource}/Cargo.lock";
+  cargoLock = {
+    lockFile = "${linuxblasterSource}/Cargo.lock";
+    outputHashes = import "${linuxblasterSource}/packaging/cargo-git-hashes.nix";
+  };
 
   nativeBuildInputs = [
     pkg-config
@@ -48,8 +51,8 @@ rustPlatform.buildRustPackage {
     install -Dm644 packaging/linuxblaster-control.desktop $out/share/applications/linuxblaster-control.desktop
     install -Dm644 packaging/linuxblaster-control.png $out/share/icons/hicolor/256x256/apps/linuxblaster-control.png
     install -Dm644 packaging/linuxblaster-control.svg $out/share/icons/hicolor/scalable/apps/linuxblaster-control.svg
-    install -Dm644 crates/app/assets/fonts/inter/LICENSE.txt $out/share/licenses/linuxblaster-control/inter/LICENSE.txt
-    install -Dm644 crates/app/assets/fonts/lucide/LICENSE $out/share/licenses/linuxblaster-control/lucide/LICENSE
+    install -Dm644 packaging/licenses/inter/LICENSE.txt $out/share/licenses/linuxblaster-control/inter/LICENSE.txt
+    install -Dm644 packaging/licenses/lucide/LICENSE $out/share/licenses/linuxblaster-control/lucide/LICENSE
     desktop-file-validate $out/share/applications/linuxblaster-control.desktop
   '';
 
