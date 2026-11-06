@@ -6,6 +6,7 @@
     linuxblaster-control
     razerr-rs
     discord-context-translate
+    mocktail
     mocktail-vr
     ghostty
     google-chrome

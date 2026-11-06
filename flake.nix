@@ -12,6 +12,10 @@
       url = "github:synsejse/linuxblaster_control/main";
       flake = false;
     };
+    mocktail = {
+      url = "github:komaruworld/mocktail/1.0.5";
+      flake = false;
+    };
     lanzaboote = {
       url = "github:nix-community/lanzaboote/v1.2.0";
       inputs.nixpkgs.follows = "nixpkgs";

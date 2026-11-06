@@ -128,6 +128,23 @@
         "type": "github"
       }
     },
+    "mocktail": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1793829286,
+        "narHash": "sha256-R4z71sxs6H2nc4O1QRsUwpIFiJCCI1RR9nKcvxEAP9U=",
+        "owner": "komaruworld",
+        "repo": "mocktail",
+        "rev": "efbfcf958619681407fca5afa26c79b9543f85d7",
+        "type": "github"
+      },
+      "original": {
+        "owner": "komaruworld",
+        "ref": "1.0.5",
+        "repo": "mocktail",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1793540411,
@@ -201,6 +218,7 @@
         "chaotic": "chaotic",
         "lanzaboote": "lanzaboote",
         "linuxblaster-control": "linuxblaster-control",
+        "mocktail": "mocktail",
         "nixpkgs": "nixpkgs_2",
         "razerr-rs": "razerr-rs"
       }
