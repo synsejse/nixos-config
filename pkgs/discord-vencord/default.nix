@@ -12,8 +12,8 @@ discord.override {
   withOpenASAR = true;
   withVencord = true;
   commandLineArgs = "--disable-accelerated-video-decode";
-  openasar = openasar.overrideAttrs (old: {
-    patches = (old.patches or [ ]) ++ [ ./openasar-read-only-modules.patch ];
+  openasar = openasar.overrideAttrs (_: {
+    # nixpkgs now includes the read-only modules fix; retain its regression check.
     doCheck = true;
     checkPhase = ''
       runHook preCheck

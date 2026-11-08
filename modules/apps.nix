@@ -9,6 +9,7 @@
     mocktail-vr
     saidler-vpn
     ghostty
+    kwi
     google-chrome
     mission-center
     qbittorrent
