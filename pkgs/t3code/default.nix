@@ -33,7 +33,6 @@
   systemd,
   xdg-utils,
   git,
-  android-device-sdk,
   nodejs_24,
 }:
 
@@ -100,14 +99,11 @@ stdenv.mkDerivation rec {
       --add-flags "--ozone-platform=wayland" \
       --set T3CODE_DISABLE_AUTO_UPDATE true \
       --set T3CODE_DESKTOP_LAUNCHER_PATH "$out/bin/t3code" \
-      --set ANDROID_HOME "${android-device-sdk}/libexec/android-sdk" \
-      --set ANDROID_SDK_ROOT "${android-device-sdk}/libexec/android-sdk" \
       --prefix PATH : ${
         lib.makeBinPath [
           xdg-utils
           git
           desktop-file-utils
-          android-device-sdk
           nodejs_24
         ]
       } \

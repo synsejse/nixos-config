@@ -1,19 +1,7 @@
-{ pkgs, ... }:
-
 {
-  boot = {
-    kernelPackages = pkgs.linuxPackages_cachyos;
-
-    lanzaboote = {
-      enable = true;
-      pkiBundle = "/var/lib/sbctl";
-      configurationLimit = 5;
-    };
-    loader = {
-      systemd-boot.enable = false;
-      efi.canTouchEfiVariables = true;
-    };
+  boot.loader.grub = {
+    enable = true;
+    device = "/dev/sda";
+    useOSProber = true;
   };
-
-  environment.systemPackages = [ pkgs.sbctl ];
 }
