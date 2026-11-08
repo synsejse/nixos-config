@@ -1,4 +1,10 @@
 {
+  # Keep pkexec available independently of desktop or package defaults.
+  security.polkit = {
+    enable = true;
+    enablePkexecWrapper = true;
+  };
+
   services.kmscon.enable = true;
 
   # Bound temporary crash-dump processing as well as retained dump files.
