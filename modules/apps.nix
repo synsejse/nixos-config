@@ -7,6 +7,7 @@
     discord-vencord
     mocktail
     mocktail-vr
+    saidler-vpn
     ghostty
     google-chrome
     mission-center

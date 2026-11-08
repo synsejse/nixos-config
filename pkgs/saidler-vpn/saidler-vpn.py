@@ -1,5 +1,6 @@
 #!@python@
 """Saidler VPN launcher and vpnc's email-code helper. Secrets stay outside Nix."""
+import configparser
 import contextlib
 import email
 import email.policy
@@ -9,6 +10,7 @@ import imaplib
 import json
 import os
 import pathlib
+import pwd
 import re
 import signal
 import ssl
@@ -20,12 +22,7 @@ import termios
 import time
 
 VPNC = "@vpnc@"
-VPN_PASSWORD_FILE = pathlib.Path("/home/synse/.config/saidler-vpn/password")
-MAIL_PASSWORD_FILE = pathlib.Path("/home/synse/.config/saidler-vpn/mail-password")
 PROFILE_FILE = pathlib.Path("/etc/vpnc/saidler.conf")
-MAIL_HOST = "mail.example.com"
-MAIL_USER = "user"
-MAIL_SENDER = "noreply@example.com"
 MAIL_TIMEOUT = 60
 STATE_ENV = "SAIDLER_VPN_MAIL_STATE"
 
@@ -39,11 +36,32 @@ def read_password(path):
     return password
 
 
-@contextlib.contextmanager
-def mailbox():
-    client = imaplib.IMAP4_SSL(MAIL_HOST, 993, ssl_context=ssl.create_default_context(), timeout=8)
+def config_dir():
+    # pkexec names the launching user; their settings stay in their home.
+    uid = os.environ.get("PKEXEC_UID", "")
+    if not uid.isdigit():
+        raise ValueError("Start this VPN through the Saidler VPN launcher.")
+    return pathlib.Path(pwd.getpwuid(int(uid)).pw_dir) / ".config" / "saidler-vpn"
+
+
+def mail_settings(directory):
+    path = directory / "mail.ini"
+    parser = configparser.ConfigParser(interpolation=None)
     try:
-        client.login(MAIL_USER, read_password(MAIL_PASSWORD_FILE))
+        if not parser.read(path):
+            raise ValueError(f"Missing mail settings: {path}")
+        section = parser["mail"]
+        return {"host": section["host"], "user": section["user"], "sender": section["sender"].lower(),
+                "password_file": str(directory / "mail-password")}
+    except configparser.Error as error:
+        raise ValueError(f"Invalid mail settings in {path}: {error}") from error
+
+
+@contextlib.contextmanager
+def mailbox(mail):
+    client = imaplib.IMAP4_SSL(mail["host"], 993, ssl_context=ssl.create_default_context(), timeout=8)
+    try:
+        client.login(mail["user"], read_password(pathlib.Path(mail["password_file"])))
         yield client
     finally:
         with contextlib.suppress(Exception):
@@ -58,10 +76,10 @@ def mailbox_state(client):
     return {"uidvalidity": int(fields[b"UIDVALIDITY"]), "uidnext": int(fields[b"UIDNEXT"])}
 
 
-def extract_code(raw, started_at):
+def extract_code(raw, started_at, sender_address):
     message = email.message_from_bytes(raw, policy=email.policy.default)
     sender = email.utils.getaddresses(message.get_all("From", []))
-    if len(sender) != 1 or sender[0][1].lower() != MAIL_SENDER:
+    if len(sender) != 1 or sender[0][1].lower() != sender_address:
         return None
     subject = re.fullmatch(r"AuthCode:\s*([0-9]{6})", str(message.get("Subject", "")).strip())
     if not subject:
@@ -92,14 +110,14 @@ def new_uids(data, minimum):
 def retrieve_code(state):
     deadline = time.monotonic() + MAIL_TIMEOUT
     checked = set()
-    with mailbox() as client:
+    with mailbox(state) as client:
         # Writable selection is intentional: mark only the chosen code email read.
         if client.select("INBOX")[0] != "OK":
             raise ValueError("Cannot select inbox.")
         while time.monotonic() < deadline:
             if mailbox_state(client)["uidvalidity"] != state["uidvalidity"]:
                 raise ValueError("Inbox identifiers changed; refuse stale messages.")
-            status, data = client.uid("search", None, "UID", f'{state["uidnext"]}:*', "FROM", f'"{MAIL_SENDER}"')
+            status, data = client.uid("search", None, "UID", f'{state["uidnext"]}:*', "FROM", f'"{state["sender"]}"')
             if status != "OK":
                 raise ValueError("Cannot search inbox.")
             for uid in new_uids(data, state["uidnext"]):
@@ -112,7 +130,7 @@ def retrieve_code(state):
                 raw = next((part[1] for part in data if isinstance(part, tuple) and isinstance(part[1], bytes)), None)
                 if raw is None:
                     continue
-                code = extract_code(raw, state["started_at"])
+                code = extract_code(raw, state["started_at"], state["sender"])
                 if code:
                     if client.uid("store", str(uid), "+FLAGS.SILENT", r"(\Seen)")[0] != "OK":
                         print("Code retrieved, but the email could not be marked read.", file=sys.stderr)
@@ -167,7 +185,8 @@ def run_vpn():
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
     except BlockingIOError:
         sys.exit("Saidler VPN is already running.")
-    password = read_password(VPN_PASSWORD_FILE)
+    settings = config_dir()
+    password = read_password(settings / "password")
     profile = "\n".join(line for line in PROFILE_FILE.read_text().splitlines()
                         if not line.startswith(("Xauth interactive", "Xauth password", "Password helper")))
     child = None
@@ -193,8 +212,9 @@ def run_vpn():
         environment.pop(STATE_ENV, None)
         print("Connecting to Saidler VPN. Ctrl+C disconnects and closes this window.", flush=True)
         try:
-            with mailbox() as client:
-                state = mailbox_state(client)
+            mail = mail_settings(settings)
+            with mailbox(mail) as client:
+                state = mailbox_state(client) | mail
             state["started_at"] = time.time()
             state_path = pathlib.Path(directory) / "mail-state.json"
             state_path.write_text(json.dumps(state))
