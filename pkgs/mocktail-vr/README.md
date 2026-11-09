@@ -1,7 +1,7 @@
 # Mocktail VR
 
 The source is pinned to the upstream `vr` branch revision
-`f40af08ed6b874f20a7ff3ded604d3270573c88a` (checked 2026-11-03). `default.nix`
+`f40af08ed6b874f20a7ff3ded604d3270573c88a` (checked 2026-11-09). `default.nix`
 pins its three vendored dependencies, enables VR, and packages all
 runtime helpers. `readiness-canary.patch` preserves the local fix that runs payload
 readiness checks without requiring a headset.
