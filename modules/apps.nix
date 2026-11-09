@@ -1,5 +1,8 @@
 { pkgs, inputs, ... }:
 
+let
+  spicePkgs = inputs.spicetify-nix.legacyPackages.${pkgs.stdenv.hostPlatform.system};
+in
 {
   users.users.synse.packages = with pkgs; [
     linuxblaster-control
@@ -30,8 +33,18 @@
 
   programs.spicetify = {
     enable = true;
+    experimentalFeatures = true;
+    theme = spicePkgs.themes.default // {
+      injectCss = true;
+      replaceColors = true;
+      injectThemeJs = true;
+    };
+    enabledExtensions = with spicePkgs.extensions; [
+      fullAppDisplay
+      keyboardShortcut
+    ];
     enabledCustomApps = [
-      inputs.spicetify-nix.legacyPackages.${pkgs.stdenv.hostPlatform.system}.apps.marketplace
+      spicePkgs.apps.marketplace
     ];
   };
 
