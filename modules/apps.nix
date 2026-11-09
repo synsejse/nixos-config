@@ -35,6 +35,8 @@ in
     enable = true;
     experimentalFeatures = true;
     theme = spicePkgs.themes.default // {
+      # Marketplace only installs themes when this is the active theme name.
+      name = "marketplace";
       injectCss = true;
       replaceColors = true;
       injectThemeJs = true;
