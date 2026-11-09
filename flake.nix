@@ -4,6 +4,10 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     chaotic.url = "github:chaotic-cx/nyx/nyxpkgs-unstable";
+    spicetify-nix = {
+      url = "github:Gerg-L/spicetify-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     razerr-rs = {
       url = "github:synsejse/razerr-rs/main";
       flake = false;
@@ -42,6 +46,7 @@
           ./hosts/nixos
           lanzaboote.nixosModules.lanzaboote
           chaotic.nixosModules.default
+          inputs.spicetify-nix.nixosModules.default
         ];
       };
     };

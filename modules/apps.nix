@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, inputs, ... }:
 
 {
   users.users.synse.packages = with pkgs; [
@@ -9,7 +9,7 @@
     mocktail-vr
     saidler-vpn
     ghostty
-    kwi
+    spicetify-cli
     google-chrome
     mission-center
     qbittorrent
@@ -27,6 +27,13 @@
   ];
 
   environment.systemPackages = [ pkgs.mpv ];
+
+  programs.spicetify = {
+    enable = true;
+    enabledCustomApps = [
+      inputs.spicetify-nix.legacyPackages.${pkgs.stdenv.hostPlatform.system}.apps.marketplace
+    ];
+  };
 
   # Make the monitor available for D-Bus activation without enabling login startup.
   systemd.packages = [ pkgs.razerr-rs ];

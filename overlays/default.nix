@@ -4,7 +4,6 @@
 {
   nixpkgs.overlays = [
     (final: prev: {
-      kwi = final.callPackage ../pkgs/kwi { };
       discord-vencord = final.callPackage ../pkgs/discord-vencord { };
       mocktail = final.callPackage ../pkgs/mocktail {
         mocktailSource = inputs.mocktail;
