@@ -7,7 +7,7 @@
     ../../overlays
   ];
 
-  networking.hostName = "nixos";
+  networking.hostName = "nixos-dev";
 
   # Keep this at the release used for the initial NixOS installation.
   system.stateVersion = "26.05";
