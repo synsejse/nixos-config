@@ -7,7 +7,10 @@ in
   users.users.synse.packages = with pkgs; [
     linuxblaster-control
     razerr-rs
-    discord-vencord
+    (discord.override {
+      withOpenASAR = true;
+      withVencord = true;
+    })
     mocktail
     mocktail-vr
     saidler-vpn
