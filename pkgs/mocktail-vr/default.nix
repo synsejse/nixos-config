@@ -42,11 +42,11 @@ let
   src = fetchFromGitHub {
     owner = "komaruworld";
     repo = "mocktail";
-    rev = "c17db21e1d49fc6fc303088453a40de322ee4405";
+    rev = "eaebb866bc04e79562a1e5416dd6aaa7568f36cb";
     fetchSubmodules = true;
-    hash = "sha256-JM7gTqRTUzmb1Gk24rvNKOTwke3UlFv7JXpFKVTFB7c=";
+    hash = "sha256-ZW/kekIQ04zBJGHhJT5X4q3CVwMA99QBaK6BoabK9ZE=";
   };
-  version = "continuous-unstable-2026-11-09";
+  version = "continuous-unstable-2026-11-19";
 in
 stdenv.mkDerivation (finalAttrs: {
   pname = "mocktail-vr";
