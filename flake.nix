@@ -54,7 +54,11 @@
       formatter.${system} = nixpkgs.legacyPackages.${system}.nixfmt-tree;
 
       packages.${system} = {
-        inherit (self.nixosConfigurations.nixos.pkgs) t3code mocktail-vr;
+        inherit (self.nixosConfigurations.nixos.pkgs)
+          t3code
+          mocktail-vr
+          pangolin-client
+          ;
       };
       apps.${system} = {
         update = {

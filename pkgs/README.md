@@ -9,6 +9,10 @@ the packages; `../modules/apps.nix` selects desktop applications for this host.
 - `mocktail-vr`: pinned upstream VR source, pinned vendored dependencies, the
   headset-independent readiness patch, and the WiVRn launcher. User configuration,
   login data, and payloads remain in the existing XDG `mocktail-vr` directories.
+- `pangolin-client`: official Pangolin Linux desktop client and background
+  tunnel daemon (`.deb` release), wrapped for GTK/WebKitGTK and paired with
+  `pangolin-cli` and the `pangolin-client` systemd service in
+  `../modules/core/networking.nix`.
 - `saidler-vpn`: FortiGate-patched vpnc and a launcher that reads the email code
   over IMAP. Passwords and mail settings stay in `~/.config/saidler-vpn/`.
 - `t3code`: T3 Code nightly, with the Wayland launcher and Android device tools.

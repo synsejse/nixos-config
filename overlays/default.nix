@@ -10,6 +10,7 @@
       mocktail-vr = final.callPackage ../pkgs/mocktail-vr { };
       android-device-sdk = final.callPackage ../pkgs/android-device-sdk { };
       t3code = final.callPackage ../pkgs/t3code { };
+      pangolin-client = final.callPackage ../pkgs/pangolin-client { };
       saidler-vpn = final.callPackage ../pkgs/saidler-vpn { };
       linuxblaster-control = final.callPackage "${inputs.linuxblaster-control}/nix/package.nix" { };
       razerr-rs = (final.callPackage "${inputs.razerr-rs}/nix/package.nix" { }).overrideAttrs (old: {

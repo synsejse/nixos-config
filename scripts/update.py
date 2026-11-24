@@ -47,7 +47,12 @@ def main() -> None:
     parser = argparse.ArgumentParser(prog="update-system", description=__doc__)
     parser.add_argument("config", nargs="?", default="/etc/nixos", help="config directory")
     repo = Path(parser.parse_args().config).resolve()
-    for relative in ("flake.nix", "pkgs/t3code/default.nix", "pkgs/mocktail-vr/default.nix"):
+    for relative in (
+        "flake.nix",
+        "pkgs/t3code/default.nix",
+        "pkgs/mocktail-vr/default.nix",
+        "pkgs/pangolin-client/default.nix",
+    ):
         if not (repo / relative).is_file():
             parser.error(f"Missing {relative} in {repo}")
 
@@ -63,6 +68,12 @@ def main() -> None:
             "--version-regex", "v(.*-nightly[.].*)",
             "--use-github-releases", "--github-releases-limit", "100",
             "--override-filename", "pkgs/t3code/default.nix", "t3code",
+        )
+        run(
+            "nix-update", "--file", "update-packages.nix",
+            "--version-regex", "linux-(.*)",
+            "--use-github-releases", "--github-releases-limit", "100",
+            "--override-filename", "pkgs/pangolin-client/default.nix", "pangolin-client",
         )
         run(
             "nix-update", "--file", "update-packages.nix", "--version=branch=vr",
