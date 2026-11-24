@@ -7,6 +7,11 @@
 
   services.kmscon.enable = true;
 
+  # Bound systemd journal storage alongside coredumps.
+  services.journald.settings.Journal = {
+    SystemMaxUse = "500M";
+  };
+
   # Bound temporary crash-dump processing as well as retained dump files.
   systemd.coredump.settings.Coredump = {
     Storage = "external";
@@ -15,6 +20,11 @@
     ExternalSizeMax = "256M";
     MaxUse = "1G";
     KeepFree = "4G";
+  };
+
+  services.earlyoom = {
+    enable = true;
+    enableNotifications = true;
   };
 
   zramSwap = {

@@ -3,6 +3,7 @@
 {
   boot = {
     kernelPackages = pkgs.linuxPackages_cachyos;
+    tmp.useTmpfs = true;
 
     lanzaboote = {
       enable = true;
