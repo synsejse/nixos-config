@@ -7,6 +7,11 @@
   };
 
   hardware.amdgpu.overdrive.enable = true;
+  boot.kernelParams = [
+    # Disable DCN SubVP / FAMS2 (DC_DISABLE_SUBVP_FAMS) to prevent 18-28 ms
+    # dcn401_dmub_hw_control_lock / inbox0 ACK stalls during low-load MCLK switches.
+    "amdgpu.dcdebugmask=0x20000"
+  ];
   services.xserver.videoDrivers = [ "amdgpu" ];
   services.lact.enable = true;
 
